@@ -2,13 +2,16 @@ import React from "react";
 import axios from "axios";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "./AuthContext";
 
 export default function Login(props){
+  // loginInfo : 백엔드 서버에 전달할 정보
   const [loginInfo, setLoginInfo] = useState(
       {email: "", pw: ""} );
   const navigate = useNavigate();
+  const {token, login, logout} = useAuth(); // 로그인 정보 저장할 Context
 
-  const handelChange = (e) => {
+  const handelChange = (e) => { // 폼 정보 변경시 저장을 위한 handleChange
     const {name, value} = e.target;
     setLoginInfo((prevInfo) => ({
       ...prevInfo, [name]: value
@@ -33,8 +36,9 @@ export default function Login(props){
     })
         .then((res) => {
           console.log("==== 받은 데이터 : " , res.data);
-          sessionStorage.setItem("token", res.data); // jjwt 토큰을 세션에 저장
-          navigate('/read');
+          // sessionStorage.setItem("token", res.data); // jjwt 토큰을 세션에 저장
+          login(res.data); // 세션이 아닌 로컬에 저장되어있는 토큰 사용
+          navigate('/list');
         })
         .catch((e) =>{
           console.log("=== error ===", e);
@@ -56,6 +60,7 @@ export default function Login(props){
           </p>
           <p>
             <button type="submit">로그인</button>
+            {/*<button type="button" onClick={ () => {logout();} }>로그아웃</button>*/}
           </p>
         </form>
       </div>

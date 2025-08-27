@@ -8,29 +8,39 @@ import axios from "axios";
 export default function List(props) {
   const [list, setList] = useState([]);
   const navigate = useNavigate();
+  let email = "";
+  let token = "";
 
   useEffect(() => {
-    // 세션 스토리지에 있는 토큰값 가져오기
-    const token = sessionStorage.getItem("token");
+    // 로컬 스토리지에 있는 토큰값 가져오기
+    // 로그인 데이터는 로컬/세션 둘 중 하나의 스토리지에 저장
+    token = localStorage.getItem("token");
 
-    // JWT에서 많이 쓰는 토큰 : Header, Payload, Signature
-    console.log(token);
-
-    // 비로그인 상태라면 로그인 페이지로 보내버리기.
-    if (token == null || token === "") {
-      navigate("/login");
-    } else { // 토큰을 갖고 파싱처리. 토큰 잘게 쪼개서 변수에 각 담기
+    if(token) {
+      console.log(token);
       const tokenParts = token.split('.');
       const payload = tokenParts[1];
       const decodedPayload = decode(payload)
       const payloadObj = JSON.parse(decodedPayload);
 
-      const email = payloadObj.sub;
+      email = payloadObj.sub;
 
       console.log(email);
+      console.log(token);
 
+      if (email === "") { // 이메일이 없을때 로그인 페이지로 이동
+        navigate("/");
+      }
+    }
+    else { // 토큰이 없을때 로그인 페이지로 이동
+      navigate("/");
+    }
+  }, [])
+
+  useEffect(() => {
       axios.get(`http://localhost:8080/notes/all?email=${email}`, {
         headers: {
+          // 인증 토큰을 함께 전달
           'Authorization': `Bearer ${token}`,
         }
       })
@@ -41,8 +51,7 @@ export default function List(props) {
           .catch(e => {
             console.log("e : ", e);
           })
-    }
-  },[]);
+  }, []);
 
   return (
       <div>
@@ -57,11 +66,11 @@ export default function List(props) {
           </thead>
 
           <tbody>
-          {list.map((list) => (
-              <tr key={list.num}>
-                <td>　{list.num}</td>
-                <td>　{list.title}</td>
-                <td>　{list.writerEmail}</td>
+          {list.map((item) => (
+              <tr key={item.num} onClick={() => navigate(`/read/${item.num}`)} style={{cursor:"pointer"}}>
+                <td> {item.num}</td>
+                <td> {item.title}</td>
+                <td> {item.writerEmail}</td>
               </tr>
           ))}
           </tbody>

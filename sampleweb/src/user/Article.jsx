@@ -1,10 +1,12 @@
 import React from "react";
 
+
+
 function Article(props) {
   return (
       <div>
-        <h1>Welcome!!</h1>
-        <p>Hello, WEB.</p>
+        <h1>{props.title}</h1>
+        <p>{props.content}</p>
       </div>
   );
 }
