@@ -10,7 +10,7 @@ export default function List(props){
   useEffect(() => {
     axios.get('/boardrest/list')
         .then((res) => {
-          console.log("data", res.data);// res : 리스폰스엔티티로 들어오는 값
+          console.log("data", res.data); // res : 리스폰스엔티티로 들어오는 값
           setList(res.data);
         })
         .catch((e) => {
